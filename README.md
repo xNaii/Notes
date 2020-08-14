@@ -1,4 +1,4 @@
-# Notes
+# VueNotes
 
 Made with vue <3
 
