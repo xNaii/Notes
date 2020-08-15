@@ -14,3 +14,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .container-fluid {
+    width: 99% !important;
+  }
+</style>

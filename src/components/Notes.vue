@@ -8,13 +8,15 @@
     </div>
     <div class="col-12 d-flex flex-md-wrap" v-if="items.length > 0">
       <div class="col-3" v-for="(item, i) in items" :key="item.i">
-        <b-card :id="'title'+i" :contenteditable="item.isEditable" :title="item.title">
-          <b-card-text :id="'text'+i">{{ item.text }}</b-card-text>
-          <div class="text-right">
-            <b-button size="sm" variant="outline-primary" v-on:click="edit(i, this)"><b-icon-pencil/></b-button>
-            <b-button class="ml-1" size="sm" variant="outline-danger" v-on:click="remove(i)"><b-icon-trash/></b-button>
-          </div>
-        </b-card>
+        <div class="card" :onedit="item.isEditable?true:'no'">
+          <div class="card-body">
+            <h4 :id="'title'+i" class="card-title" :contenteditable="item.isEditable">{{ item.title }}</h4>
+            <b-card-text :id="'text'+i" :contenteditable="item.isEditable">{{ item.text }}</b-card-text>
+            <div class="text-right">
+              <b-button size="sm" variant="outline-primary" v-on:click="edit(i)"><b-icon-pencil/></b-button>
+              <b-button class="ml-1" size="sm" variant="outline-danger" v-on:click="remove(i)"><b-icon-trash/></b-button>
+            </div>
+        </div>
       </div>
     </div>
     <b-modal id="note" title="Note" @ok="modalOK">
@@ -27,6 +29,7 @@
                        placeholder="Some text.....">
       </b-form-textarea>
     </b-modal>
+  </div>
   </div>
 </template>
 
@@ -61,17 +64,16 @@ export default {
       this.title = "";
       this.text = "";
     },
-    edit: function (i, el) {
-      console.log(el);
-
+    edit: function (i) {
       if (!this.items[i].isEditable) {
         this.items[i].isEditable = true;
         return;
       }else{
         this.items[i].isEditable = false;
       }
-
-      this.items[i].title = document.getElementById('title' + i).querySelector('.card-title').innerText;
+      console.log(document.getElementById('title' + i));
+      console.log(document.getElementById('title' + i).innerText);
+      this.items[i].title = document.getElementById('title' + i).innerText;
       this.items[i].text = document.getElementById('text' + i).innerText;
       localStorage.items = JSON.stringify(this.items);
     },
@@ -83,22 +85,26 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .col-3 {
-    margin-top: 0.5em;
-  }
-
-  div[contenteditable="false"] {
+  div[onedit="no"] {
     background-color: white;
+
     transition: background-color .5s ease-in-out;
   }
 
-  div[contenteditable="true"] {
+  div[onedit="true"] {
     background-color: rgba(46,46,46,1);
     color: white;
     box-shadow: 0 0 5px #434343;
 
     transition: background-color .5s ease-in-out;
+  }
+
+  .row {
+    margin: 0;
+  }
+
+  .col-3 {
+    margin-top: 0.5em;
   }
 </style>
