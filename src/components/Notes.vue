@@ -1,13 +1,20 @@
 <template>
   <div class="row">
-    <div class="col-12 mb-3 ml-3">
-      <b-button v-b-modal.note variant="primary">New Note</b-button>
+    <div class="col-md-12 mb-2 d-inline-flex">
+      <div class="col-md-8 col-sm-5">
+        <b-button v-b-modal.note variant="primary">New Note</b-button>
+      </div>
+      <div class="col-md-4 col-sm-7 text-right">
+        <label class="btn btn-light mt-2 mr-2" for="file-import">Import</label>
+        <input type="file" id="file-import" class="inputFile" ref="file" accept=".note" v-on:change="importLocal()"/>
+        <b-button variant="outline-light" @click="exportLocal">Export</b-button>
+      </div>
     </div>
-    <div class="col-12 text-light" v-if="items.length === 0">
+    <div class="col-md-12 text-light" v-if="items.length === 0">
         No notes is stored.
     </div>
-    <div class="col-12 d-flex flex-md-wrap" v-if="items.length > 0">
-      <div class="col-3" v-for="(item, i) in items" :key="item.i">
+    <div class="col-md-12 d-md-flex flex-md-wrap" v-if="items.length > 0">
+      <div class="col-sm-12 col-md-6 col-lg-3 mb-2" v-for="(item, i) in items" :key="item.i">
         <div class="card" :onedit="item.isEditable?true:'no'">
           <div class="card-body">
             <h4 :id="'title'+i" class="card-title" :contenteditable="item.isEditable">{{ item.title }}</h4>
@@ -34,7 +41,9 @@
 </template>
 
 <script>
-// TODO: Add note pins to top!
+// TODO: Add note pins to top
+// TODO: Add draggable to arrange notes
+import moment from "moment";
 export default {
   name: 'Notes',
   data() {
@@ -80,7 +89,28 @@ export default {
     remove: function (i){
       this.items.splice(i, 1);
       localStorage.items = JSON.stringify(this.items);
-    }
+    },
+    importLocal: function (){
+      const file = this.$refs.file.files[0];
+      new Promise(function(resolve) {
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          resolve(reader.result)
+        }
+        reader.readAsText(file);
+      }).then((r) => {
+        localStorage.items = r;
+        this.items = JSON.parse(r);
+      });
+    },
+    exportLocal: function (){
+      const blob = new Blob([localStorage.items], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', moment().format('Y-MM-D')+'-backup.note');
+      link.click();
+      URL.revokeObjectURL(link.href);
+    },
   }
 }
 </script>
@@ -104,7 +134,12 @@ export default {
     margin: 0;
   }
 
-  .col-3 {
-    margin-top: 0.5em;
+  .inputFile {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
   }
 </style>
